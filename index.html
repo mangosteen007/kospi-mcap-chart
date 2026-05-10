@@ -9,156 +9,89 @@
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
 
   :root {
-    --bg: #090d18;
-    --surface: #111827;
-    --surface2: #1a2235;
-    --border: #1e2d45;
-    --text: #e2e8f0;
-    --dim: #64748b;
-    --muted: #334155;
-    --accent: #38bdf8;
-    --up: #10b981;
-    --down: #f43f5e;
+    --bg: #090d18; --surface: #111827; --surface2: #1a2235;
+    --border: #1e2d45; --text: #e2e8f0; --dim: #64748b;
+    --muted: #334155; --accent: #38bdf8; --up: #10b981; --down: #f43f5e;
   }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:20px 24px; }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  .header { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--border); padding-bottom:14px; margin-bottom:16px; }
+  .header h1 { font-size:18px; font-weight:700; letter-spacing:-0.5px; }
+  .header p  { font-size:11px; color:var(--dim); margin-top:4px; font-family:'JetBrains Mono',monospace; }
+  .badge { background:linear-gradient(135deg,#0ea5e9,#2563eb); color:#fff; font-size:11px; font-weight:600; padding:3px 12px; border-radius:20px; }
 
-  body {
-    font-family: 'Noto Sans KR', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 20px 24px;
-  }
+  .controls { display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap; align-items:center; }
+  .btn-group { display:flex; background:var(--surface); border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+  .btn-group button { padding:5px 14px; background:transparent; border:none; color:var(--dim); font-size:12px; cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:all 0.15s; }
+  .btn-group button.active { background:var(--accent); color:#0a0e1a; font-weight:700; }
+  .btn-group button:hover:not(.active) { color:var(--text); }
+  select { background:var(--surface); border:1px solid var(--border); border-radius:8px; color:var(--text); padding:5px 28px 5px 12px; font-size:12px; cursor:pointer; font-family:'Noto Sans KR',sans-serif; outline:none; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; }
+  select option { background:var(--surface2); }
+  .hint { font-size:11px; color:var(--muted); margin-left:auto; }
 
-  /* Header */
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 14px;
-    margin-bottom: 16px;
-  }
-  .header h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
-  .header p  { font-size: 11px; color: var(--dim); margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
-  .badge { background: linear-gradient(135deg, #0ea5e9, #2563eb); color: #fff; font-size: 11px; font-weight: 600; padding: 3px 12px; border-radius: 20px; }
+  .yrange-wrap { display:none; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:8px 14px; margin-bottom:10px; user-select:none; }
+  .yrange-wrap.visible { display:flex; }
+  .yrange-label { font-size:11px; color:var(--dim); white-space:nowrap; }
+  .yrange-val { font-size:11px; color:var(--accent); font-family:'JetBrains Mono',monospace; font-weight:600; min-width:54px; }
+  .yrange-val.right { text-align:right; }
+  .slider-track-wrap { position:relative; flex:1; height:20px; display:flex; align-items:center; }
+  .slider-track { position:absolute; left:0; right:0; height:4px; background:var(--border); border-radius:2px; }
+  .slider-range { position:absolute; height:4px; background:var(--accent); border-radius:2px; opacity:0.6; }
+  .slider-handle { position:absolute; width:14px; height:14px; background:var(--accent); border-radius:50%; transform:translateX(-50%); cursor:grab; z-index:2; box-shadow:0 0 0 3px rgba(56,189,248,0.2); transition:box-shadow 0.15s,transform 0.1s; }
+  .slider-handle:hover { transform:translateX(-50%) scale(1.2); box-shadow:0 0 0 5px rgba(56,189,248,0.3); }
+  .slider-handle.dragging { cursor:grabbing; transform:translateX(-50%) scale(1.25); }
+  .yrange-reset { font-size:11px; color:var(--dim); cursor:pointer; padding:3px 8px; border-radius:5px; border:1px solid var(--border); background:transparent; font-family:'Noto Sans KR',sans-serif; transition:all 0.15s; white-space:nowrap; }
+  .yrange-reset:hover { color:var(--text); border-color:var(--accent); }
 
-  /* Controls */
-  .controls { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+  .main { display:grid; grid-template-columns:1fr 200px; gap:12px; height:calc(100vh - 210px); min-height:360px; }
+  .chart-wrap { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:10px 8px 6px 8px; overflow:hidden; }
+  #chart { width:100%; height:100%; display:block; cursor:crosshair; }
+  .axis text { fill:var(--dim); font-size:10px; font-family:'JetBrains Mono',monospace; }
+  .axis line, .axis path { stroke:var(--border); }
+  .grid line { stroke:rgba(255,255,255,0.04); stroke-dasharray:3,3; }
+  .grid path { display:none; }
+  .zero-line { stroke:rgba(255,255,255,0.18); stroke-dasharray:5,4; fill:none; }
+  .crosshair { stroke:var(--muted); stroke-dasharray:4,3; }
+  .line-path { fill:none; stroke-width:1.5; cursor:pointer; transition:stroke-width 0.15s,opacity 0.15s; }
+  .line-path.faded { opacity:0.06; stroke-width:0.8; }
+  .line-path.hl { stroke-width:2.8; opacity:1 !important; }
 
-  .btn-group { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-  .btn-group button { padding: 5px 14px; background: transparent; border: none; color: var(--dim); font-size: 12px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; transition: all 0.15s; }
-  .btn-group button.active { background: var(--accent); color: #0a0e1a; font-weight: 700; }
-  .btn-group button:hover:not(.active) { color: var(--text); }
+  .legend { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 11px; overflow-y:auto; }
+  .legend::-webkit-scrollbar { width:4px; }
+  .legend::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+  .legend-title { font-size:11px; color:var(--dim); text-transform:uppercase; letter-spacing:0.05em; padding-bottom:8px; margin-bottom:6px; border-bottom:1px solid var(--border); }
+  .legend-item { display:flex; align-items:center; gap:6px; padding:4px 5px; border-radius:6px; cursor:pointer; transition:all 0.12s; margin-bottom:1px; }
+  .legend-item:hover { background:rgba(255,255,255,0.04); }
+  .legend-item.hl { background:rgba(56,189,248,0.1); }
+  .legend-item.faded { opacity:0.35; }
+  .legend-swatch { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .legend-info { flex:1; min-width:0; }
+  .legend-name { font-size:11px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .legend-sub { font-size:10px; color:var(--dim); font-family:'JetBrains Mono',monospace; }
+  .legend-chg { font-size:11px; font-family:'JetBrains Mono',monospace; font-weight:600; flex-shrink:0; }
+  .up { color:var(--up); }
+  .down { color:var(--down); }
 
-  select {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
-    color: var(--text); padding: 5px 28px 5px 12px; font-size: 12px; cursor: pointer;
-    font-family: 'Noto Sans KR', sans-serif; outline: none; appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 10px center;
-  }
-  select option { background: var(--surface2); }
+  #tooltip { position:fixed; display:none; z-index:999; pointer-events:none; background:rgba(9,13,24,0.97); border:1px solid var(--border); border-radius:10px; padding:11px 13px; min-width:195px; box-shadow:0 8px 32px rgba(0,0,0,0.6); font-size:12px; }
+  .tip-date { font-family:'JetBrains Mono',monospace; color:var(--dim); font-size:11px; padding-bottom:7px; margin-bottom:7px; border-bottom:1px solid var(--border); }
+  .tip-row { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:5px; }
+  .tip-name { display:flex; align-items:center; gap:6px; font-weight:500; }
+  .tip-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .tip-cap { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); font-weight:600; }
+  .tip-chg { font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; }
+  .tip-hint { font-size:10px; color:var(--muted); margin-top:7px; }
 
-  .hint { font-size: 11px; color: var(--muted); margin-left: auto; }
-
-  /* Layout */
-  .main { display: grid; grid-template-columns: 1fr 200px; gap: 12px; height: calc(100vh - 170px); min-height: 380px; }
-
-  /* Chart */
-  .chart-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 10px 8px 6px 8px; position: relative; overflow: hidden; }
-  #chart { width: 100%; height: 100%; display: block; cursor: crosshair; }
-
-  .axis text { fill: var(--dim); font-size: 10px; font-family: 'JetBrains Mono', monospace; }
-  .axis line, .axis path { stroke: var(--border); }
-  .grid line { stroke: rgba(255,255,255,0.04); stroke-dasharray: 3,3; }
-  .grid path { display: none; }
-  .zero-line { stroke: rgba(255,255,255,0.18); stroke-dasharray: 5,4; fill: none; }
-  .crosshair { stroke: var(--muted); stroke-dasharray: 4,3; }
-  .line-path { fill: none; stroke-width: 1.5; cursor: pointer; transition: stroke-width 0.15s, opacity 0.15s; }
-  .line-path.faded { opacity: 0.06; stroke-width: 0.8; }
-  .line-path.hl { stroke-width: 2.8; opacity: 1 !important; }
-
-  /* Legend */
-  .legend { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 11px; overflow-y: auto; }
-  .legend::-webkit-scrollbar { width: 4px; }
-  .legend::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-  .legend-title { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; padding-bottom: 8px; margin-bottom: 6px; border-bottom: 1px solid var(--border); }
-  .legend-item { display: flex; align-items: center; gap: 6px; padding: 4px 5px; border-radius: 6px; cursor: pointer; transition: all 0.12s; margin-bottom: 1px; }
-  .legend-item:hover { background: rgba(255,255,255,0.04); }
-  .legend-item.hl { background: rgba(56,189,248,0.1); }
-  .legend-item.faded { opacity: 0.35; }
-  .legend-swatch { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .legend-info { flex: 1; min-width: 0; }
-  .legend-name { font-size: 11px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .legend-sub { font-size: 10px; color: var(--dim); font-family: 'JetBrains Mono', monospace; }
-  .legend-chg { font-size: 11px; font-family: 'JetBrains Mono', monospace; font-weight: 600; flex-shrink: 0; }
-  .up { color: var(--up); }
-  .down { color: var(--down); }
-
-  /* Tooltip */
-  #tooltip {
-    position: fixed; display: none; z-index: 999; pointer-events: none;
-    background: rgba(9,13,24,0.97); border: 1px solid var(--border);
-    border-radius: 10px; padding: 11px 13px; min-width: 195px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.6); font-size: 12px;
-  }
-  .tip-date { font-family: 'JetBrains Mono', monospace; color: var(--dim); font-size: 11px; padding-bottom: 7px; margin-bottom: 7px; border-bottom: 1px solid var(--border); }
-  .tip-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 5px; }
-  .tip-name { display: flex; align-items: center; gap: 6px; font-weight: 500; }
-  .tip-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .tip-cap { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); font-weight: 600; }
-  .tip-chg { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; }
-  .tip-hint { font-size: 10px; color: var(--muted); margin-top: 7px; }
-
-  /* Loading */
-  #loading { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; z-index: 100; }
-  .spinner { width: 44px; height: 44px; border: 4px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  #loading p { color: var(--dim); font-size: 13px; }
-
-  /* Error */
-  #error-msg { display: none; background: rgba(244,63,94,0.08); border: 1px solid rgba(244,63,94,0.25); border-radius: 10px; padding: 14px 18px; color: var(--down); font-size: 13px; margin-bottom: 12px; }
-
-  /* Y축 범위 슬라이더 */
-  .yrange-wrap {
-    display: none; align-items: center; gap: 10px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; padding: 8px 14px; margin-bottom: 10px; user-select: none;
-  }
-  .yrange-wrap.visible { display: flex; }
-  .yrange-label { font-size: 11px; color: var(--dim); white-space: nowrap; }
-  .yrange-val { font-size: 11px; color: var(--accent); font-family: 'JetBrains Mono', monospace; font-weight: 600; min-width: 54px; }
-  .yrange-val.right { text-align: right; }
-  .slider-track-wrap { position: relative; flex: 1; height: 20px; display: flex; align-items: center; cursor: pointer; }
-  .slider-track { position: absolute; left: 0; right: 0; height: 4px; background: var(--border); border-radius: 2px; }
-  .slider-range { position: absolute; height: 4px; background: var(--accent); border-radius: 2px; opacity: 0.6; }
-  .slider-handle {
-    position: absolute; width: 14px; height: 14px;
-    background: var(--accent); border-radius: 50%; transform: translateX(-50%);
-    cursor: grab; z-index: 2;
-    box-shadow: 0 0 0 3px rgba(56,189,248,0.2);
-    transition: box-shadow 0.15s, transform 0.1s;
-  }
-  .slider-handle:hover { transform: translateX(-50%) scale(1.2); box-shadow: 0 0 0 5px rgba(56,189,248,0.3); }
-  .slider-handle.dragging { cursor: grabbing; transform: translateX(-50%) scale(1.25); }
-  .yrange-reset {
-    font-size: 11px; color: var(--dim); cursor: pointer;
-    padding: 3px 8px; border-radius: 5px; border: 1px solid var(--border);
-    background: transparent; font-family: 'Noto Sans KR', sans-serif;
-    transition: all 0.15s; white-space: nowrap;
-  }
-  .yrange-reset:hover { color: var(--text); border-color: var(--accent); }
+  #loading { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; z-index:100; }
+  .spinner { width:44px; height:44px; border:4px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  #loading p { color:var(--dim); font-size:13px; }
+  #error-msg { display:none; background:rgba(244,63,94,0.08); border:1px solid rgba(244,63,94,0.25); border-radius:10px; padding:14px 18px; color:var(--down); font-size:13px; margin-bottom:12px; }
 </style>
 </head>
 <body>
 
-<div id="loading">
-  <div class="spinner"></div>
-  <p>KOSPI 데이터 로딩 중...</p>
-</div>
-
+<div id="loading"><div class="spinner"></div><p>KOSPI 데이터 로딩 중...</p></div>
 <div id="error-msg"></div>
 
 <div class="header">
@@ -187,50 +120,55 @@
   <div class="slider-track-wrap" id="slider-track-wrap">
     <div class="slider-track"></div>
     <div class="slider-range" id="slider-range"></div>
-    <div class="slider-handle" id="handle-lo" title="하한 드래그"></div>
-    <div class="slider-handle" id="handle-hi" title="상한 드래그"></div>
+    <div class="slider-handle" id="handle-lo"></div>
+    <div class="slider-handle" id="handle-hi"></div>
   </div>
   <span class="yrange-val right" id="yr-max-val">1500조</span>
   <button class="yrange-reset" onclick="resetYRange()">초기화</button>
 </div>
 
 <div class="main">
-  <div class="chart-wrap" id="chart-wrap">
-    <svg id="chart"></svg>
-  </div>
-  <div class="legend" id="legend">
+  <div class="chart-wrap" id="chart-wrap"><svg id="chart"></svg></div>
+  <div class="legend">
     <div class="legend-title">종목</div>
     <div id="legend-items"></div>
   </div>
 </div>
-
 <div id="tooltip"></div>
 
 <script>
-// ── State ────────────────────────────────────────────────────
-let allData = [], highlight = null, mode = 'abs', sector = 'all', logScale = false;
-let yRangePct = [0, 1]; // 슬라이더 비율 [하한, 상한] 0~1
-let yDataMin = 0, yDataMax = 1500; // 실제 데이터 min/max (데이터 로드 후 갱신)
+var allData = [];
+var highlight = null;
+var mode = 'abs';
+var sector = 'all';
+var logScale = false;
+var yRangePct = [0, 1];
+var yDataMin = 0;
+var yDataMax = 1500;
 
-const SECTOR_PALETTE = {
+var PALETTE = {
   '반도체':'#38bdf8','자동차':'#f59e0b','IT':'#a78bfa','바이오':'#34d399',
   '화학':'#f97316','배터리':'#818cf8','철강':'#94a3b8','금융':'#fb7185',
   '지주':'#e879f9','건설':'#84cc16','전자':'#22d3ee','에너지':'#facc15',
   '통신':'#2dd4bf','보험':'#c084fc','해운':'#60a5fa','조선':'#f472b6',
-  '항공':'#4ade80','전력기기':'#ff6b6b',
+  '항공':'#4ade80','전력기기':'#ff6b6b'
 };
 
-// ── Load Data ─────────────────────────────────────────────────
 fetch('./data/kospi.json')
-  .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-  .then(json => {
-    allData = json.stocks.map(s => ({ ...s, color: SECTOR_PALETTE[s.sector] || '#94a3b8' }));
+  .then(function(r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  })
+  .then(function(json) {
+    allData = json.stocks.map(function(s) {
+      return { code:s.code, name:s.name, sector:s.sector, values:s.values, color:PALETTE[s.sector]||'#94a3b8' };
+    });
     document.getElementById('subtitle').textContent =
-      `최근 30영업일 · ~${json.generated_at} · ${json.source || 'KRX'}`;
-    // 전체 데이터 범위 계산
-    const allCaps = allData.flatMap(s => s.values.map(v => v.cap));
-    yDataMin = Math.min(...allCaps);
-    yDataMax = Math.max(...allCaps);
+      '최근 30영업일 · ~' + json.generated_at + ' · ' + (json.source || 'KRX');
+    var caps = [];
+    allData.forEach(function(s) { s.values.forEach(function(v) { caps.push(v.cap); }); });
+    yDataMin = Math.min.apply(null, caps);
+    yDataMax = Math.max.apply(null, caps);
     yRangePct = [0, 1];
     buildSectorFilter();
     buildLegend();
@@ -238,290 +176,220 @@ fetch('./data/kospi.json')
     initSlider();
     document.getElementById('loading').style.display = 'none';
   })
-  .catch(err => {
+  .catch(function(err) {
     document.getElementById('loading').style.display = 'none';
-    const el = document.getElementById('error-msg');
+    var el = document.getElementById('error-msg');
     el.style.display = 'block';
-    el.textContent = '⚠️ 데이터 로드 실패: ' + err.message + ' — GitHub Actions가 아직 실행되지 않았을 수 있습니다.';
+    el.textContent = '⚠️ 데이터 로드 실패: ' + err.message;
   });
 
-// ── Sector Filter ─────────────────────────────────────────────
-function buildSectorFilter() {
-  const sectors = ['all', ...new Set(allData.map(d => d.sector))].sort((a,b)=> a==='all'?-1:b==='all'?1:a.localeCompare(b));
-  const sel = document.getElementById('sector-sel');
-  sel.innerHTML = sectors.map(s => `<option value="${s}">${s === 'all' ? '전체 섹터' : s}</option>`).join('');
+function getFiltered() {
+  return allData.filter(function(d) { return sector === 'all' || d.sector === sector; });
 }
-function setSector(v) { sector = v; highlight = null; buildLegend(); drawChart(); }
 
-// ── Mode ──────────────────────────────────────────────────────
+function getVal(v, s) {
+  if (mode === 'rel') return (v.cap - s.values[0].cap) / s.values[0].cap * 100;
+  return v.cap;
+}
+
+function buildSectorFilter() {
+  var seen = {}, sectors = ['all'];
+  allData.forEach(function(d) { if (!seen[d.sector]) { seen[d.sector]=true; sectors.push(d.sector); } });
+  sectors.sort(function(a,b) { return a==='all'?-1:b==='all'?1:a.localeCompare(b); });
+  document.getElementById('sector-sel').innerHTML = sectors.map(function(s) {
+    return '<option value="'+s+'">'+(s==='all'?'전체 섹터':s)+'</option>';
+  }).join('');
+}
+
+function setSector(v) { sector=v; highlight=null; buildLegend(); drawChart(); }
+
 function setMode(m) {
   mode = m;
-  document.getElementById('btn-abs').classList.toggle('active', m === 'abs');
-  document.getElementById('btn-rel').classList.toggle('active', m === 'rel');
-  // 등락률 모드에서는 슬라이더 숨김
-  const wrap = document.getElementById('yrange-wrap');
-  if (m === 'rel') { wrap.classList.remove('visible'); }
-  else if (allData.length) { wrap.classList.add('visible'); }
+  document.getElementById('btn-abs').classList.toggle('active', m==='abs');
+  document.getElementById('btn-rel').classList.toggle('active', m==='rel');
+  var w = document.getElementById('yrange-wrap');
+  if (m==='rel') w.classList.remove('visible');
+  else if (allData.length) w.classList.add('visible');
   drawChart();
 }
 
-// ── Log Scale ─────────────────────────────────────────────────
 function toggleLog() {
   logScale = !logScale;
   document.getElementById('btn-log').classList.toggle('active', logScale);
   drawChart();
 }
 
-// ── Y Range Slider ────────────────────────────────────────────
 function initSlider() {
   document.getElementById('yrange-wrap').classList.add('visible');
   updateSliderUI();
-
-  ['lo', 'hi'].forEach(which => {
-    const handle = document.getElementById(`handle-${which}`);
-    handle.addEventListener('mousedown', e => startDrag(e, which));
-    handle.addEventListener('touchstart', e => startDrag(e, which), { passive: true });
-  });
+  function makeDrag(which) {
+    return function(e) { startDrag(e, which); };
+  }
+  document.getElementById('handle-lo').addEventListener('mousedown', makeDrag('lo'));
+  document.getElementById('handle-hi').addEventListener('mousedown', makeDrag('hi'));
+  document.getElementById('handle-lo').addEventListener('touchstart', makeDrag('lo'), {passive:true});
+  document.getElementById('handle-hi').addEventListener('touchstart', makeDrag('hi'), {passive:true});
 }
 
 function startDrag(e, which) {
-  e.preventDefault && e.preventDefault();
-  const handle = document.getElementById(`handle-${which}`);
+  if (e.preventDefault) e.preventDefault();
+  var handle = document.getElementById('handle-'+which);
   handle.classList.add('dragging');
-
-  const onMove = ev => {
-    const clientX = ev.touches ? ev.touches[0].clientX : ev.clientX;
-    const wrap = document.getElementById('slider-track-wrap');
-    const rect = wrap.getBoundingClientRect();
-    let pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-
-    if (which === 'lo') {
-      yRangePct[0] = Math.min(pct, yRangePct[1] - 0.02);
-    } else {
-      yRangePct[1] = Math.max(pct, yRangePct[0] + 0.02);
-    }
+  function onMove(ev) {
+    var cx = ev.touches ? ev.touches[0].clientX : ev.clientX;
+    var rect = document.getElementById('slider-track-wrap').getBoundingClientRect();
+    var pct = Math.max(0, Math.min(1, (cx - rect.left) / rect.width));
+    if (which==='lo') yRangePct[0] = Math.min(pct, yRangePct[1]-0.02);
+    else              yRangePct[1] = Math.max(pct, yRangePct[0]+0.02);
     updateSliderUI();
     drawChart();
-  };
-
-  const onUp = () => {
+  }
+  function onUp() {
     handle.classList.remove('dragging');
     document.removeEventListener('mousemove', onMove);
     document.removeEventListener('mouseup', onUp);
     document.removeEventListener('touchmove', onMove);
     document.removeEventListener('touchend', onUp);
-  };
-
+  }
   document.addEventListener('mousemove', onMove);
   document.addEventListener('mouseup', onUp);
-  document.addEventListener('touchmove', onMove, { passive: true });
+  document.addEventListener('touchmove', onMove, {passive:true});
   document.addEventListener('touchend', onUp);
 }
 
 function updateSliderUI() {
-  const lo = yRangePct[0], hi = yRangePct[1];
-  document.getElementById('handle-lo').style.left = `${lo * 100}%`;
-  document.getElementById('handle-hi').style.left = `${hi * 100}%`;
-  document.getElementById('slider-range').style.left  = `${lo * 100}%`;
-  document.getElementById('slider-range').style.width = `${(hi - lo) * 100}%`;
-
-  const span = yDataMax - yDataMin;
-  const minVal = yDataMin + lo * span;
-  const maxVal = yDataMin + hi * span;
-  document.getElementById('yr-min-val').textContent = `${minVal.toFixed(0)}조`;
-  document.getElementById('yr-max-val').textContent = `${maxVal.toFixed(0)}조`;
+  var lo=yRangePct[0], hi=yRangePct[1], span=yDataMax-yDataMin;
+  document.getElementById('handle-lo').style.left   = (lo*100)+'%';
+  document.getElementById('handle-hi').style.left   = (hi*100)+'%';
+  document.getElementById('slider-range').style.left  = (lo*100)+'%';
+  document.getElementById('slider-range').style.width = ((hi-lo)*100)+'%';
+  document.getElementById('yr-min-val').textContent = (yDataMin+lo*span).toFixed(0)+'조';
+  document.getElementById('yr-max-val').textContent = (yDataMin+hi*span).toFixed(0)+'조';
 }
 
-function resetYRange() {
-  yRangePct = [0, 1];
-  updateSliderUI();
-  drawChart();
-}
+function resetYRange() { yRangePct=[0,1]; updateSliderUI(); drawChart(); }
 
-
-  return allData.filter(d => sector === 'all' || d.sector === sector);
-}
-
-// ── Legend ────────────────────────────────────────────────────
 function buildLegend() {
-  const fd = [...getFiltered()].sort((a,b) => (b.values.at(-1)?.cap||0) - (a.values.at(-1)?.cap||0));
-  const container = document.getElementById('legend-items');
-  container.innerHTML = fd.map((s, i) => {
-    const first = s.values[0]?.cap || 1;
-    const last  = s.values.at(-1)?.cap || 0;
-    const chg   = ((last - first) / first) * 100;
-    const isHl  = highlight === s.code;
-    const isFd  = highlight && !isHl;
-    return `<div class="legend-item${isHl?' hl':''}${isFd?' faded':''}" onclick="toggleHl('${s.code}')">
-      <div class="legend-swatch" style="background:${s.color}"></div>
-      <div class="legend-info">
-        <div class="legend-name">${s.name}</div>
-        <div class="legend-sub">#${i+1} ${s.sector}</div>
-      </div>
-      <div class="legend-chg ${chg>=0?'up':'down'}">${chg>=0?'+':''}${chg.toFixed(1)}%</div>
-    </div>`;
+  var fd = getFiltered().slice().sort(function(a,b) {
+    return (b.values[b.values.length-1].cap||0)-(a.values[a.values.length-1].cap||0);
+  });
+  document.getElementById('legend-items').innerHTML = fd.map(function(s,i) {
+    var first=s.values[0].cap||1, last=s.values[s.values.length-1].cap||0;
+    var chg=(last-first)/first*100;
+    var isHl=highlight===s.code, isFd=highlight&&!isHl;
+    return '<div class="legend-item'+(isHl?' hl':'')+(isFd?' faded':'')+'" onclick="toggleHl(\''+s.code+'\')">'
+      +'<div class="legend-swatch" style="background:'+s.color+'"></div>'
+      +'<div class="legend-info"><div class="legend-name">'+s.name+'</div>'
+      +'<div class="legend-sub">#'+(i+1)+' '+s.sector+'</div></div>'
+      +'<div class="legend-chg '+(chg>=0?'up':'down')+'">'+(chg>=0?'+':'')+chg.toFixed(1)+'%</div>'
+      +'</div>';
   }).join('');
 }
 
-function toggleHl(code) {
-  highlight = highlight === code ? null : code;
-  buildLegend();
-  drawChart();
-}
+function toggleHl(code) { highlight=highlight===code?null:code; buildLegend(); drawChart(); }
 
-// ── Chart ─────────────────────────────────────────────────────
 function drawChart() {
-  const wrap = document.getElementById('chart-wrap');
-  const svgEl = document.getElementById('chart');
-  svgEl.innerHTML = '';
-
-  const W = wrap.clientWidth  - 2;
-  const H = wrap.clientHeight - 2;
-  const M = { top: 14, right: 20, bottom: 32, left: 60 };
-  const iW = W - M.left - M.right;
-  const iH = H - M.top  - M.bottom;
-
-  const svg = d3.select('#chart').attr('width', W).attr('height', H);
-  const g   = svg.append('g').attr('transform', `translate(${M.left},${M.top})`);
-
-  const fd = getFiltered();
+  var wrap=document.getElementById('chart-wrap');
+  document.getElementById('chart').innerHTML='';
+  var W=wrap.clientWidth-2, H=wrap.clientHeight-2;
+  var M={top:14,right:20,bottom:32,left:60};
+  var iW=W-M.left-M.right, iH=H-M.top-M.bottom;
+  var svg=d3.select('#chart').attr('width',W).attr('height',H);
+  var g=svg.append('g').attr('transform','translate('+M.left+','+M.top+')');
+  var fd=getFiltered();
   if (!fd.length) return;
 
-  const dates = fd[0].values.map(v => v.date);
-  const getVal = (v, s) => mode === 'rel'
-    ? ((v.cap - s.values[0].cap) / s.values[0].cap) * 100
-    : v.cap;
+  var dates=fd[0].values.map(function(v){return v.date;});
+  var allVals=[];
+  fd.forEach(function(s){s.values.forEach(function(v){allVals.push(getVal(v,s));});});
+  var yMin=d3.min(allVals), yMax=d3.max(allVals), yPad=(yMax-yMin)*0.1||1;
 
-  const allVals = fd.flatMap(s => s.values.map(v => getVal(v, s)));
-  const [yMin, yMax] = d3.extent(allVals);
-  const yPad = (yMax - yMin) * 0.1 || 1;
+  var yDomainMin, yDomainMax;
+  if (mode==='abs') {
+    var span=yDataMax-yDataMin;
+    yDomainMin=yDataMin+yRangePct[0]*span;
+    yDomainMax=yDataMin+yRangePct[1]*span;
+  } else { yDomainMin=yMin-yPad; yDomainMax=yMax+yPad; }
 
-  // Y축 범위: 슬라이더 적용 (abs 모드일 때만)
-  let yDomainMin, yDomainMax;
-  if (mode === 'abs') {
-    const span = yDataMax - yDataMin;
-    yDomainMin = yDataMin + yRangePct[0] * span;
-    yDomainMax = yDataMin + yRangePct[1] * span;
-  } else {
-    yDomainMin = yMin - yPad;
-    yDomainMax = yMax + yPad;
-  }
-
-  const useLog = logScale && mode === 'abs';
-  let yScale;
+  var useLog=logScale&&mode==='abs';
+  var yScale;
   if (useLog) {
-    const safeMin = Math.max(yDomainMin, 0.1);
-    yScale = d3.scaleLog().domain([safeMin, yDomainMax]).range([iH, 0]).nice();
+    yScale=d3.scaleLog().domain([Math.max(yDomainMin,0.1),yDomainMax]).range([iH,0]).nice();
   } else {
-    yScale = d3.scaleLinear().domain([yDomainMin, yDomainMax]).range([iH, 0]).nice();
+    yScale=d3.scaleLinear().domain([yDomainMin,yDomainMax]).range([iH,0]).nice();
   }
+  var xScale=d3.scalePoint().domain(dates).range([0,iW]).padding(0.3);
 
-  const xScale = d3.scalePoint().domain(dates).range([0, iW]).padding(0.3);
+  g.append('g').attr('class','grid').call(d3.axisLeft(yScale).ticks(5).tickSize(-iW).tickFormat(''));
+  if (mode==='rel') g.append('line').attr('class','zero-line').attr('x1',0).attr('x2',iW).attr('y1',yScale(0)).attr('y2',yScale(0));
 
-  // Grid
-  g.append('g').attr('class','grid')
-    .call(d3.axisLeft(yScale).ticks(5).tickSize(-iW).tickFormat(''));
-
-  // Zero line
-  if (mode === 'rel') {
-    g.append('line').attr('class','zero-line')
-      .attr('x1',0).attr('x2',iW).attr('y1',yScale(0)).attr('y2',yScale(0));
-  }
-
-  // Axes
-  const xTickEvery = Math.ceil(dates.length / 7);
-  const xTickDates = dates.filter((_,i) => i % xTickEvery === 0);
-  g.append('g').attr('class','axis').attr('transform',`translate(0,${iH})`)
-    .call(d3.axisBottom(xScale).tickValues(xTickDates).tickFormat(d => d.slice(5)));
+  var xTE=Math.ceil(dates.length/7);
+  var xTD=dates.filter(function(_,i){return i%xTE===0;});
+  g.append('g').attr('class','axis').attr('transform','translate(0,'+iH+')')
+    .call(d3.axisBottom(xScale).tickValues(xTD).tickFormat(function(d){return d.slice(5);}));
   g.append('g').attr('class','axis')
-    .call(d3.axisLeft(yScale).ticks(useLog ? 6 : 5).tickFormat(v =>
-      mode === 'rel' ? `${v>=0?'+':''}${v.toFixed(1)}%` : `${v.toFixed(0)}조`
-    ));
+    .call(d3.axisLeft(yScale).ticks(useLog?6:5).tickFormat(function(v){
+      return mode==='rel'?(v>=0?'+':'')+v.toFixed(1)+'%':v.toFixed(0)+'조';
+    }));
 
-  // Lines
-  const lineGen = s => d3.line()
-    .x(v => xScale(v.date))
-    .y(v => yScale(getVal(v, s)))
-    .curve(d3.curveMonotoneX)(s.values);
-
-  fd.forEach(s => {
-    const isHl = highlight === s.code;
-    const isFd = highlight && !isHl;
-    g.append('path')
-      .datum(s)
-      .attr('class', `line-path${isHl?' hl':''}${isFd?' faded':''}`)
-      .attr('d', lineGen(s))
-      .attr('stroke', s.color)
-      .on('click', () => toggleHl(s.code));
+  fd.forEach(function(s) {
+    var isHl=highlight===s.code, isFd=highlight&&!isHl;
+    var line=d3.line()
+      .x(function(v){return xScale(v.date);})
+      .y(function(v){return yScale(getVal(v,s));})
+      .curve(d3.curveMonotoneX);
+    g.append('path').datum(s.values)
+      .attr('class','line-path'+(isHl?' hl':'')+(isFd?' faded':''))
+      .attr('d',line).attr('stroke',s.color)
+      .on('click',(function(c){return function(){toggleHl(c);};})(s.code));
   });
 
-  // Label for highlight
   if (highlight) {
-    const hs = fd.find(s => s.code === highlight);
+    var hs=fd.filter(function(s){return s.code===highlight;})[0];
     if (hs) {
-      const lv = hs.values.at(-1);
-      g.append('text')
-        .attr('x', xScale(lv.date) + 6)
-        .attr('y', yScale(getVal(lv, hs)) + 4)
-        .attr('fill', hs.color)
-        .attr('font-size', 11).attr('font-weight', 700)
-        .attr('font-family', 'Noto Sans KR')
-        .text(hs.name);
+      var lv=hs.values[hs.values.length-1];
+      g.append('text').attr('x',xScale(lv.date)+6).attr('y',yScale(getVal(lv,hs))+4)
+        .attr('fill',hs.color).attr('font-size',11).attr('font-weight',700)
+        .attr('font-family','Noto Sans KR').text(hs.name);
     }
   }
 
-  // Crosshair + Tooltip
-  const crossV = g.append('line').attr('class','crosshair').attr('y1',0).attr('y2',iH).style('display','none');
-  const sorted = [...fd].sort((a,b) => (b.values.at(-1)?.cap||0) - (a.values.at(-1)?.cap||0));
+  var crossV=g.append('line').attr('class','crosshair').attr('y1',0).attr('y2',iH).style('display','none');
+  var sorted=fd.slice().sort(function(a,b){
+    return (b.values[b.values.length-1].cap||0)-(a.values[a.values.length-1].cap||0);
+  });
 
   svg.append('rect')
-    .attr('transform',`translate(${M.left},${M.top})`)
+    .attr('transform','translate('+M.left+','+M.top+')')
     .attr('width',iW).attr('height',iH).attr('fill','transparent')
-    .on('mousemove', function(event) {
-      const [mx] = d3.pointer(event);
-      const domain = xScale.domain();
-      const idx = Math.max(0, Math.min(domain.length-1,
-        Math.round((mx - xScale(domain[0])) / xScale.step())
-      ));
-      const date = domain[idx];
-      crossV.attr('x1', xScale(date)).attr('x2', xScale(date)).style('display', null);
-
-      const rows = highlight
-        ? fd.filter(s => s.code === highlight)
-        : sorted.slice(0, 5);
-
-      const tip = document.getElementById('tooltip');
-      const [px, py] = d3.pointer(event, document.body);
-      tip.style.left = Math.min(px + 16, window.innerWidth - 215) + 'px';
-      tip.style.top  = Math.max(8, py - 16) + 'px';
-      tip.style.display = 'block';
-
-      const unit = mode === 'rel' ? '' : '조';
-      tip.innerHTML = `<div class="tip-date">${date}</div>` +
-        rows.map(s => {
-          const v = s.values[idx];
-          if (!v) return '';
-          const val = getVal(v, s);
-          const chg = ((s.values[idx].cap - s.values[0].cap) / s.values[0].cap) * 100;
-          const disp = mode === 'rel'
-            ? `${val>=0?'+':''}${val.toFixed(2)}%`
-            : `${val.toFixed(1)}조`;
-          return `<div class="tip-row">
-            <span class="tip-name"><span class="tip-dot" style="background:${s.color}"></span>${s.name}</span>
-            <span class="tip-cap">${disp}</span>
-            <span class="tip-chg ${chg>=0?'up':'down'}">${chg>=0?'+':''}${chg.toFixed(1)}%</span>
-          </div>`;
-        }).join('') +
-        (!highlight ? '<div class="tip-hint">상위 5개 표시 · 종목 클릭시 고정</div>' : '');
+    .on('mousemove',function(event) {
+      var mx=d3.pointer(event)[0];
+      var domain=xScale.domain();
+      var idx=Math.max(0,Math.min(domain.length-1,Math.round((mx-xScale(domain[0]))/xScale.step())));
+      var date=domain[idx];
+      crossV.attr('x1',xScale(date)).attr('x2',xScale(date)).style('display',null);
+      var rows=highlight?fd.filter(function(s){return s.code===highlight;}):sorted.slice(0,5);
+      var ptr=d3.pointer(event,document.body);
+      var tip=document.getElementById('tooltip');
+      tip.style.left=Math.min(ptr[0]+16,window.innerWidth-215)+'px';
+      tip.style.top=Math.max(8,ptr[1]-16)+'px';
+      tip.style.display='block';
+      tip.innerHTML='<div class="tip-date">'+date+'</div>'+rows.map(function(s) {
+        var v=s.values[idx]; if (!v) return '';
+        var val=getVal(v,s), chg=(v.cap-s.values[0].cap)/s.values[0].cap*100;
+        var disp=mode==='rel'?(val>=0?'+':'')+val.toFixed(2)+'%':val.toFixed(1)+'조';
+        return '<div class="tip-row"><span class="tip-name"><span class="tip-dot" style="background:'+s.color+'"></span>'+s.name+'</span>'
+          +'<span class="tip-cap">'+disp+'</span>'
+          +'<span class="tip-chg '+(chg>=0?'up':'down')+'">'+(chg>=0?'+':'')+chg.toFixed(1)+'%</span></div>';
+      }).join('')+(!highlight?'<div class="tip-hint">상위 5개 표시 · 종목 클릭시 고정</div>':'');
     })
-    .on('mouseleave', () => {
+    .on('mouseleave',function(){
       crossV.style('display','none');
-      document.getElementById('tooltip').style.display = 'none';
+      document.getElementById('tooltip').style.display='none';
     });
 }
 
-// ── Resize ────────────────────────────────────────────────────
-window.addEventListener('resize', () => { if (allData.length) drawChart(); });
+window.addEventListener('resize',function(){if(allData.length)drawChart();});
 </script>
 </body>
 </html>
