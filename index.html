@@ -145,6 +145,9 @@
     <button id="btn-rel" onclick="setMode('rel')">등락률 (%)</button>
   </div>
   <select id="sector-sel" onchange="setSector(this.value)"></select>
+  <div class="btn-group">
+    <button id="btn-log" onclick="toggleLog()">로그 스케일</button>
+  </div>
   <span class="hint">선 또는 종목 클릭 → 하이라이트</span>
 </div>
 
@@ -162,7 +165,7 @@
 
 <script>
 // ── State ────────────────────────────────────────────────────
-let allData = [], highlight = null, mode = 'abs', sector = 'all';
+let allData = [], highlight = null, mode = 'abs', sector = 'all', logScale = false;
 
 const SECTOR_PALETTE = {
   '반도체':'#38bdf8','자동차':'#f59e0b','IT':'#a78bfa','바이오':'#34d399',
@@ -207,7 +210,13 @@ function setMode(m) {
   drawChart();
 }
 
-// ── Filtered ──────────────────────────────────────────────────
+// ── Log Scale ─────────────────────────────────────────────────
+function toggleLog() {
+  logScale = !logScale;
+  document.getElementById('btn-log').classList.toggle('active', logScale);
+  drawChart();
+}
+
 function getFiltered() {
   return allData.filter(d => sector === 'all' || d.sector === sector);
 }
@@ -266,8 +275,16 @@ function drawChart() {
   const [yMin, yMax] = d3.extent(allVals);
   const yPad = (yMax - yMin) * 0.1 || 1;
 
+  const useLog = logScale && mode === 'abs';
+  let yScale;
+  if (useLog) {
+    const safeMin = Math.max(yMin * 0.9, 0.1);
+    yScale = d3.scaleLog().domain([safeMin, yMax * 1.1]).range([iH, 0]).nice();
+  } else {
+    yScale = d3.scaleLinear().domain([yMin - yPad, yMax + yPad]).range([iH, 0]).nice();
+  }
+
   const xScale = d3.scalePoint().domain(dates).range([0, iW]).padding(0.3);
-  const yScale = d3.scaleLinear().domain([yMin - yPad, yMax + yPad]).range([iH, 0]).nice();
 
   // Grid
   g.append('g').attr('class','grid')
@@ -285,7 +302,7 @@ function drawChart() {
   g.append('g').attr('class','axis').attr('transform',`translate(0,${iH})`)
     .call(d3.axisBottom(xScale).tickValues(xTickDates).tickFormat(d => d.slice(5)));
   g.append('g').attr('class','axis')
-    .call(d3.axisLeft(yScale).ticks(5).tickFormat(v =>
+    .call(d3.axisLeft(yScale).ticks(useLog ? 6 : 5).tickFormat(v =>
       mode === 'rel' ? `${v>=0?'+':''}${v.toFixed(1)}%` : `${v.toFixed(0)}조`
     ));
 
