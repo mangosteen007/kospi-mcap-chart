@@ -9,19 +9,21 @@
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
 
   :root {
-    --bg: #090d18; --surface: #111827; --surface2: #1a2235;
-    --border: #1e2d45; --text: #e2e8f0; --dim: #64748b;
-    --muted: #334155; --accent: #38bdf8; --up: #10b981; --down: #f43f5e;
+    --bg:#090d18; --surface:#111827; --surface2:#1a2235;
+    --border:#1e2d45; --text:#e2e8f0; --dim:#64748b;
+    --muted:#334155; --accent:#38bdf8; --up:#10b981; --down:#f43f5e;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:20px 24px; }
 
+  /* Header */
   .header { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--border); padding-bottom:14px; margin-bottom:16px; }
   .header h1 { font-size:18px; font-weight:700; letter-spacing:-0.5px; }
   .header p  { font-size:11px; color:var(--dim); margin-top:4px; font-family:'JetBrains Mono',monospace; }
   .badge { background:linear-gradient(135deg,#0ea5e9,#2563eb); color:#fff; font-size:11px; font-weight:600; padding:3px 12px; border-radius:20px; }
 
-  .controls { display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap; align-items:center; }
+  /* Controls */
+  .controls { display:flex; gap:10px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
   .btn-group { display:flex; background:var(--surface); border:1px solid var(--border); border-radius:8px; overflow:hidden; }
   .btn-group button { padding:5px 14px; background:transparent; border:none; color:var(--dim); font-size:12px; cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:all 0.15s; }
   .btn-group button.active { background:var(--accent); color:#0a0e1a; font-weight:700; }
@@ -30,21 +32,59 @@
   select option { background:var(--surface2); }
   .hint { font-size:11px; color:var(--muted); margin-left:auto; }
 
-  .yrange-wrap { display:none; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:8px 14px; margin-bottom:10px; user-select:none; }
-  .yrange-wrap.visible { display:flex; }
-  .yrange-label { font-size:11px; color:var(--dim); white-space:nowrap; }
-  .yrange-val { font-size:11px; color:var(--accent); font-family:'JetBrains Mono',monospace; font-weight:600; min-width:54px; }
-  .yrange-val.right { text-align:right; }
-  .slider-track-wrap { position:relative; flex:1; height:20px; display:flex; align-items:center; }
-  .slider-track { position:absolute; left:0; right:0; height:4px; background:var(--border); border-radius:2px; }
-  .slider-range { position:absolute; height:4px; background:var(--accent); border-radius:2px; opacity:0.6; }
-  .slider-handle { position:absolute; width:14px; height:14px; background:var(--accent); border-radius:50%; transform:translateX(-50%); cursor:grab; z-index:2; box-shadow:0 0 0 3px rgba(56,189,248,0.2); transition:box-shadow 0.15s,transform 0.1s; }
-  .slider-handle:hover { transform:translateX(-50%) scale(1.2); box-shadow:0 0 0 5px rgba(56,189,248,0.3); }
-  .slider-handle.dragging { cursor:grabbing; transform:translateX(-50%) scale(1.25); }
-  .yrange-reset { font-size:11px; color:var(--dim); cursor:pointer; padding:3px 8px; border-radius:5px; border:1px solid var(--border); background:transparent; font-family:'Noto Sans KR',sans-serif; transition:all 0.15s; white-space:nowrap; }
-  .yrange-reset:hover { color:var(--text); border-color:var(--accent); }
+  /* Main layout: [세로 슬라이더] [차트] [레전드] */
+  .main {
+    display:grid;
+    grid-template-columns:32px 1fr 200px;
+    gap:10px;
+    height:calc(100vh - 170px);
+    min-height:360px;
+  }
 
-  .main { display:grid; grid-template-columns:1fr 200px; gap:12px; height:calc(100vh - 210px); min-height:360px; }
+  /* 세로 Y축 슬라이더 */
+  .yslider-wrap {
+    display:flex; flex-direction:column; align-items:center;
+    justify-content:space-between;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:10px; padding:10px 0; user-select:none;
+  }
+  .yslider-val {
+    font-size:10px; color:var(--accent); font-family:'JetBrains Mono',monospace;
+    font-weight:600; writing-mode:vertical-rl; text-orientation:mixed;
+    transform:rotate(180deg); white-space:nowrap; line-height:1;
+  }
+  .yslider-track-wrap {
+    position:relative; flex:1; width:20px;
+    display:flex; justify-content:center; margin:8px 0; cursor:pointer;
+  }
+  .yslider-track {
+    position:absolute; top:0; bottom:0; width:4px;
+    background:var(--border); border-radius:2px; left:50%; transform:translateX(-50%);
+  }
+  .yslider-range {
+    position:absolute; width:4px;
+    background:var(--accent); border-radius:2px; opacity:0.6;
+    left:50%; transform:translateX(-50%);
+  }
+  .yslider-handle {
+    position:absolute; width:14px; height:14px;
+    background:var(--accent); border-radius:50%;
+    left:50%; transform:translate(-50%, -50%);
+    cursor:grab; z-index:2;
+    box-shadow:0 0 0 3px rgba(56,189,248,0.2);
+    transition:box-shadow 0.15s, transform 0.1s;
+  }
+  .yslider-handle:hover { transform:translate(-50%,-50%) scale(1.2); box-shadow:0 0 0 5px rgba(56,189,248,0.3); }
+  .yslider-handle.dragging { cursor:grabbing; transform:translate(-50%,-50%) scale(1.25); }
+  .yslider-reset {
+    font-size:9px; color:var(--dim); cursor:pointer;
+    writing-mode:vertical-rl; transform:rotate(180deg);
+    padding:4px 0; border:none; background:transparent;
+    font-family:'Noto Sans KR',sans-serif; transition:color 0.15s;
+  }
+  .yslider-reset:hover { color:var(--accent); }
+
+  /* Chart */
   .chart-wrap { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:10px 8px 6px 8px; overflow:hidden; }
   #chart { width:100%; height:100%; display:block; cursor:crosshair; }
   .axis text { fill:var(--dim); font-size:10px; font-family:'JetBrains Mono',monospace; }
@@ -57,6 +97,7 @@
   .line-path.faded { opacity:0.06; stroke-width:0.8; }
   .line-path.hl { stroke-width:2.8; opacity:1 !important; }
 
+  /* Legend */
   .legend { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 11px; overflow-y:auto; }
   .legend::-webkit-scrollbar { width:4px; }
   .legend::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
@@ -73,15 +114,26 @@
   .up { color:var(--up); }
   .down { color:var(--down); }
 
-  #tooltip { position:fixed; display:none; z-index:999; pointer-events:none; background:rgba(9,13,24,0.97); border:1px solid var(--border); border-radius:10px; padding:11px 13px; min-width:195px; box-shadow:0 8px 32px rgba(0,0,0,0.6); font-size:12px; }
-  .tip-date { font-family:'JetBrains Mono',monospace; color:var(--dim); font-size:11px; padding-bottom:7px; margin-bottom:7px; border-bottom:1px solid var(--border); }
-  .tip-row { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:5px; }
-  .tip-name { display:flex; align-items:center; gap:6px; font-weight:500; }
-  .tip-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-  .tip-cap { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); font-weight:600; }
-  .tip-chg { font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; }
-  .tip-hint { font-size:10px; color:var(--muted); margin-top:7px; }
+  /* Tooltip - 전체 종목 표시용으로 스크롤 가능 */
+  #tooltip {
+    position:fixed; display:none; z-index:999; pointer-events:none;
+    background:rgba(9,13,24,0.97); border:1px solid var(--border);
+    border-radius:10px; padding:11px 13px; width:230px;
+    max-height:80vh; overflow-y:auto;
+    box-shadow:0 8px 32px rgba(0,0,0,0.6); font-size:12px;
+  }
+  #tooltip::-webkit-scrollbar { width:3px; }
+  #tooltip::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+  .tip-date { font-family:'JetBrains Mono',monospace; color:var(--dim); font-size:11px; padding-bottom:7px; margin-bottom:7px; border-bottom:1px solid var(--border); position:sticky; top:0; background:rgba(9,13,24,0.97); }
+  .tip-row { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:4px; }
+  .tip-rank { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); min-width:16px; }
+  .tip-name { display:flex; align-items:center; gap:5px; font-weight:500; flex:1; min-width:0; overflow:hidden; }
+  .tip-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+  .tip-name span { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tip-cap { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); font-weight:600; flex-shrink:0; }
+  .tip-chg { font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:600; flex-shrink:0; min-width:44px; text-align:right; }
 
+  /* Loading */
   #loading { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; z-index:100; }
   .spinner { width:44px; height:44px; border:4px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; }
   @keyframes spin { to { transform:rotate(360deg); } }
@@ -108,32 +160,33 @@
     <button id="btn-rel" onclick="setMode('rel')">등락률 (%)</button>
   </div>
   <select id="sector-sel" onchange="setSector(this.value)"></select>
-  <div class="btn-group">
-    <button id="btn-log" onclick="toggleLog()">로그 스케일</button>
-  </div>
   <span class="hint">선 또는 종목 클릭 → 하이라이트</span>
 </div>
 
-<div class="yrange-wrap" id="yrange-wrap">
-  <span class="yrange-label">Y축 범위</span>
-  <span class="yrange-val" id="yr-min-val">0조</span>
-  <div class="slider-track-wrap" id="slider-track-wrap">
-    <div class="slider-track"></div>
-    <div class="slider-range" id="slider-range"></div>
-    <div class="slider-handle" id="handle-lo"></div>
-    <div class="slider-handle" id="handle-hi"></div>
-  </div>
-  <span class="yrange-val right" id="yr-max-val">1500조</span>
-  <button class="yrange-reset" onclick="resetYRange()">초기화</button>
-</div>
-
 <div class="main">
+  <!-- 세로 Y축 슬라이더 -->
+  <div class="yslider-wrap" id="yslider-wrap">
+    <div class="yslider-val" id="ys-max-val">1500조</div>
+    <div class="yslider-track-wrap" id="yslider-track-wrap">
+      <div class="yslider-track"></div>
+      <div class="yslider-range" id="yslider-range"></div>
+      <div class="yslider-handle" id="yhandle-hi"></div>
+      <div class="yslider-handle" id="yhandle-lo"></div>
+    </div>
+    <div class="yslider-val" id="ys-min-val">0조</div>
+    <button class="yslider-reset" onclick="resetYRange()" title="초기화">초기화</button>
+  </div>
+
+  <!-- 차트 -->
   <div class="chart-wrap" id="chart-wrap"><svg id="chart"></svg></div>
+
+  <!-- 레전드 -->
   <div class="legend">
     <div class="legend-title">종목</div>
     <div id="legend-items"></div>
   </div>
 </div>
+
 <div id="tooltip"></div>
 
 <script>
@@ -141,8 +194,7 @@ var allData = [];
 var highlight = null;
 var mode = 'abs';
 var sector = 'all';
-var logScale = false;
-var yRangePct = [0, 1];
+var yRangePct = [0, 1]; // [하한비율, 상한비율] — 0=최솟값, 1=최댓값
 var yDataMin = 0;
 var yDataMax = 1500;
 
@@ -154,6 +206,7 @@ var PALETTE = {
   '항공':'#4ade80','전력기기':'#ff6b6b'
 };
 
+// ── Load ──────────────────────────────────────────────────────
 fetch('./data/kospi.json')
   .then(function(r) {
     if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -183,6 +236,7 @@ fetch('./data/kospi.json')
     el.textContent = '⚠️ 데이터 로드 실패: ' + err.message;
   });
 
+// ── Helpers ───────────────────────────────────────────────────
 function getFiltered() {
   return allData.filter(function(d) { return sector === 'all' || d.sector === sector; });
 }
@@ -192,6 +246,7 @@ function getVal(v, s) {
   return v.cap;
 }
 
+// ── Sector ────────────────────────────────────────────────────
 function buildSectorFilter() {
   var seen = {}, sectors = ['all'];
   allData.forEach(function(d) { if (!seen[d.sector]) { seen[d.sector]=true; sectors.push(d.sector); } });
@@ -200,50 +255,50 @@ function buildSectorFilter() {
     return '<option value="'+s+'">'+(s==='all'?'전체 섹터':s)+'</option>';
   }).join('');
 }
-
 function setSector(v) { sector=v; highlight=null; buildLegend(); drawChart(); }
 
+// ── Mode ──────────────────────────────────────────────────────
 function setMode(m) {
   mode = m;
   document.getElementById('btn-abs').classList.toggle('active', m==='abs');
   document.getElementById('btn-rel').classList.toggle('active', m==='rel');
-  var w = document.getElementById('yrange-wrap');
-  if (m==='rel') w.classList.remove('visible');
-  else if (allData.length) w.classList.add('visible');
+  // 등락률 모드에서는 슬라이더 비활성화 표시
+  document.getElementById('yslider-wrap').style.opacity = (m==='rel') ? '0.3' : '1';
+  document.getElementById('yslider-wrap').style.pointerEvents = (m==='rel') ? 'none' : '';
   drawChart();
 }
 
-function toggleLog() {
-  logScale = !logScale;
-  document.getElementById('btn-log').classList.toggle('active', logScale);
-  drawChart();
-}
-
+// ── Vertical Slider ───────────────────────────────────────────
 function initSlider() {
-  document.getElementById('yrange-wrap').classList.add('visible');
   updateSliderUI();
   function makeDrag(which) {
     return function(e) { startDrag(e, which); };
   }
-  document.getElementById('handle-lo').addEventListener('mousedown', makeDrag('lo'));
-  document.getElementById('handle-hi').addEventListener('mousedown', makeDrag('hi'));
-  document.getElementById('handle-lo').addEventListener('touchstart', makeDrag('lo'), {passive:true});
-  document.getElementById('handle-hi').addEventListener('touchstart', makeDrag('hi'), {passive:true});
+  document.getElementById('yhandle-lo').addEventListener('mousedown', makeDrag('lo'));
+  document.getElementById('yhandle-hi').addEventListener('mousedown', makeDrag('hi'));
+  document.getElementById('yhandle-lo').addEventListener('touchstart', makeDrag('lo'), {passive:true});
+  document.getElementById('yhandle-hi').addEventListener('touchstart', makeDrag('hi'), {passive:true});
 }
 
 function startDrag(e, which) {
   if (e.preventDefault) e.preventDefault();
-  var handle = document.getElementById('handle-'+which);
+  var handle = document.getElementById('yhandle-'+which);
   handle.classList.add('dragging');
+
   function onMove(ev) {
-    var cx = ev.touches ? ev.touches[0].clientX : ev.clientX;
-    var rect = document.getElementById('slider-track-wrap').getBoundingClientRect();
-    var pct = Math.max(0, Math.min(1, (cx - rect.left) / rect.width));
-    if (which==='lo') yRangePct[0] = Math.min(pct, yRangePct[1]-0.02);
-    else              yRangePct[1] = Math.max(pct, yRangePct[0]+0.02);
+    var cy = ev.touches ? ev.touches[0].clientY : ev.clientY;
+    var rect = document.getElementById('yslider-track-wrap').getBoundingClientRect();
+    // 세로 슬라이더: 위가 최댓값(1), 아래가 최솟값(0)
+    var pct = 1 - Math.max(0, Math.min(1, (cy - rect.top) / rect.height));
+    if (which === 'lo') {
+      yRangePct[0] = Math.min(pct, yRangePct[1] - 0.02);
+    } else {
+      yRangePct[1] = Math.max(pct, yRangePct[0] + 0.02);
+    }
     updateSliderUI();
     drawChart();
   }
+
   function onUp() {
     handle.classList.remove('dragging');
     document.removeEventListener('mousemove', onMove);
@@ -251,6 +306,7 @@ function startDrag(e, which) {
     document.removeEventListener('touchmove', onMove);
     document.removeEventListener('touchend', onUp);
   }
+
   document.addEventListener('mousemove', onMove);
   document.addEventListener('mouseup', onUp);
   document.addEventListener('touchmove', onMove, {passive:true});
@@ -258,17 +314,22 @@ function startDrag(e, which) {
 }
 
 function updateSliderUI() {
-  var lo=yRangePct[0], hi=yRangePct[1], span=yDataMax-yDataMin;
-  document.getElementById('handle-lo').style.left   = (lo*100)+'%';
-  document.getElementById('handle-hi').style.left   = (hi*100)+'%';
-  document.getElementById('slider-range').style.left  = (lo*100)+'%';
-  document.getElementById('slider-range').style.width = ((hi-lo)*100)+'%';
-  document.getElementById('yr-min-val').textContent = (yDataMin+lo*span).toFixed(0)+'조';
-  document.getElementById('yr-max-val').textContent = (yDataMin+hi*span).toFixed(0)+'조';
+  var lo = yRangePct[0], hi = yRangePct[1];
+  var span = yDataMax - yDataMin;
+  // 세로: 위=hi(1-hi가 top%), 아래=lo(1-lo가 top%)
+  var topHi  = (1 - hi) * 100;
+  var topLo  = (1 - lo) * 100;
+  document.getElementById('yhandle-hi').style.top = topHi + '%';
+  document.getElementById('yhandle-lo').style.top = topLo + '%';
+  document.getElementById('yslider-range').style.top    = topHi + '%';
+  document.getElementById('yslider-range').style.height = (topLo - topHi) + '%';
+  document.getElementById('ys-min-val').textContent = (yDataMin + lo * span).toFixed(0) + '조';
+  document.getElementById('ys-max-val').textContent = (yDataMin + hi * span).toFixed(0) + '조';
 }
 
 function resetYRange() { yRangePct=[0,1]; updateSliderUI(); drawChart(); }
 
+// ── Legend ────────────────────────────────────────────────────
 function buildLegend() {
   var fd = getFiltered().slice().sort(function(a,b) {
     return (b.values[b.values.length-1].cap||0)-(a.values[a.values.length-1].cap||0);
@@ -288,53 +349,53 @@ function buildLegend() {
 
 function toggleHl(code) { highlight=highlight===code?null:code; buildLegend(); drawChart(); }
 
+// ── Chart ─────────────────────────────────────────────────────
 function drawChart() {
-  var wrap=document.getElementById('chart-wrap');
-  document.getElementById('chart').innerHTML='';
-  var W=wrap.clientWidth-2, H=wrap.clientHeight-2;
-  var M={top:14,right:20,bottom:32,left:60};
-  var iW=W-M.left-M.right, iH=H-M.top-M.bottom;
-  var svg=d3.select('#chart').attr('width',W).attr('height',H);
-  var g=svg.append('g').attr('transform','translate('+M.left+','+M.top+')');
-  var fd=getFiltered();
+  var wrap = document.getElementById('chart-wrap');
+  document.getElementById('chart').innerHTML = '';
+  var W = wrap.clientWidth-2, H = wrap.clientHeight-2;
+  var M = {top:14, right:20, bottom:32, left:60};
+  var iW = W-M.left-M.right, iH = H-M.top-M.bottom;
+
+  var svg = d3.select('#chart').attr('width',W).attr('height',H);
+  var g   = svg.append('g').attr('transform','translate('+M.left+','+M.top+')');
+
+  var fd = getFiltered();
   if (!fd.length) return;
 
-  var dates=fd[0].values.map(function(v){return v.date;});
-  var allVals=[];
+  var dates = fd[0].values.map(function(v){return v.date;});
+  var allVals = [];
   fd.forEach(function(s){s.values.forEach(function(v){allVals.push(getVal(v,s));});});
   var yMin=d3.min(allVals), yMax=d3.max(allVals), yPad=(yMax-yMin)*0.1||1;
 
   var yDomainMin, yDomainMax;
-  if (mode==='abs') {
-    var span=yDataMax-yDataMin;
-    yDomainMin=yDataMin+yRangePct[0]*span;
-    yDomainMax=yDataMin+yRangePct[1]*span;
-  } else { yDomainMin=yMin-yPad; yDomainMax=yMax+yPad; }
-
-  var useLog=logScale&&mode==='abs';
-  var yScale;
-  if (useLog) {
-    yScale=d3.scaleLog().domain([Math.max(yDomainMin,0.1),yDomainMax]).range([iH,0]).nice();
+  if (mode === 'abs') {
+    var span = yDataMax - yDataMin;
+    yDomainMin = yDataMin + yRangePct[0] * span;
+    yDomainMax = yDataMin + yRangePct[1] * span;
   } else {
-    yScale=d3.scaleLinear().domain([yDomainMin,yDomainMax]).range([iH,0]).nice();
+    yDomainMin = yMin - yPad;
+    yDomainMax = yMax + yPad;
   }
-  var xScale=d3.scalePoint().domain(dates).range([0,iW]).padding(0.3);
+
+  var yScale = d3.scaleLinear().domain([yDomainMin, yDomainMax]).range([iH, 0]).nice();
+  var xScale = d3.scalePoint().domain(dates).range([0, iW]).padding(0.3);
 
   g.append('g').attr('class','grid').call(d3.axisLeft(yScale).ticks(5).tickSize(-iW).tickFormat(''));
   if (mode==='rel') g.append('line').attr('class','zero-line').attr('x1',0).attr('x2',iW).attr('y1',yScale(0)).attr('y2',yScale(0));
 
-  var xTE=Math.ceil(dates.length/7);
-  var xTD=dates.filter(function(_,i){return i%xTE===0;});
+  var xTE = Math.ceil(dates.length/7);
+  var xTD = dates.filter(function(_,i){return i%xTE===0;});
   g.append('g').attr('class','axis').attr('transform','translate(0,'+iH+')')
     .call(d3.axisBottom(xScale).tickValues(xTD).tickFormat(function(d){return d.slice(5);}));
   g.append('g').attr('class','axis')
-    .call(d3.axisLeft(yScale).ticks(useLog?6:5).tickFormat(function(v){
+    .call(d3.axisLeft(yScale).ticks(5).tickFormat(function(v){
       return mode==='rel'?(v>=0?'+':'')+v.toFixed(1)+'%':v.toFixed(0)+'조';
     }));
 
   fd.forEach(function(s) {
     var isHl=highlight===s.code, isFd=highlight&&!isHl;
-    var line=d3.line()
+    var line = d3.line()
       .x(function(v){return xScale(v.date);})
       .y(function(v){return yScale(getVal(v,s));})
       .curve(d3.curveMonotoneX);
@@ -345,51 +406,72 @@ function drawChart() {
   });
 
   if (highlight) {
-    var hs=fd.filter(function(s){return s.code===highlight;})[0];
+    var hs = fd.filter(function(s){return s.code===highlight;})[0];
     if (hs) {
-      var lv=hs.values[hs.values.length-1];
+      var lv = hs.values[hs.values.length-1];
       g.append('text').attr('x',xScale(lv.date)+6).attr('y',yScale(getVal(lv,hs))+4)
         .attr('fill',hs.color).attr('font-size',11).attr('font-weight',700)
         .attr('font-family','Noto Sans KR').text(hs.name);
     }
   }
 
-  var crossV=g.append('line').attr('class','crosshair').attr('y1',0).attr('y2',iH).style('display','none');
-  var sorted=fd.slice().sort(function(a,b){
+  var crossV = g.append('line').attr('class','crosshair').attr('y1',0).attr('y2',iH).style('display','none');
+
+  // 시가총액 기준 정렬 (툴팁용)
+  var sortedFd = fd.slice().sort(function(a,b){
     return (b.values[b.values.length-1].cap||0)-(a.values[a.values.length-1].cap||0);
   });
 
   svg.append('rect')
     .attr('transform','translate('+M.left+','+M.top+')')
     .attr('width',iW).attr('height',iH).attr('fill','transparent')
-    .on('mousemove',function(event) {
-      var mx=d3.pointer(event)[0];
-      var domain=xScale.domain();
-      var idx=Math.max(0,Math.min(domain.length-1,Math.round((mx-xScale(domain[0]))/xScale.step())));
-      var date=domain[idx];
+    .on('mousemove', function(event) {
+      var mx = d3.pointer(event)[0];
+      var domain = xScale.domain();
+      var idx = Math.max(0, Math.min(domain.length-1, Math.round((mx-xScale(domain[0]))/xScale.step())));
+      var date = domain[idx];
       crossV.attr('x1',xScale(date)).attr('x2',xScale(date)).style('display',null);
-      var rows=highlight?fd.filter(function(s){return s.code===highlight;}):sorted.slice(0,5);
-      var ptr=d3.pointer(event,document.body);
-      var tip=document.getElementById('tooltip');
-      tip.style.left=Math.min(ptr[0]+16,window.innerWidth-215)+'px';
-      tip.style.top=Math.max(8,ptr[1]-16)+'px';
-      tip.style.display='block';
-      tip.innerHTML='<div class="tip-date">'+date+'</div>'+rows.map(function(s) {
-        var v=s.values[idx]; if (!v) return '';
-        var val=getVal(v,s), chg=(v.cap-s.values[0].cap)/s.values[0].cap*100;
-        var disp=mode==='rel'?(val>=0?'+':'')+val.toFixed(2)+'%':val.toFixed(1)+'조';
-        return '<div class="tip-row"><span class="tip-name"><span class="tip-dot" style="background:'+s.color+'"></span>'+s.name+'</span>'
-          +'<span class="tip-cap">'+disp+'</span>'
-          +'<span class="tip-chg '+(chg>=0?'up':'down')+'">'+(chg>=0?'+':'')+chg.toFixed(1)+'%</span></div>';
-      }).join('')+(!highlight?'<div class="tip-hint">상위 5개 표시 · 종목 클릭시 고정</div>':'');
+
+      // 해당 날짜 기준으로 시가총액 순 재정렬
+      var rows = sortedFd.slice().sort(function(a,b) {
+        var av = a.values[idx] ? a.values[idx].cap : 0;
+        var bv = b.values[idx] ? b.values[idx].cap : 0;
+        return bv - av;
+      });
+
+      var ptr = d3.pointer(event, document.body);
+      var tip = document.getElementById('tooltip');
+
+      // 툴팁이 화면 오른쪽을 벗어나지 않도록
+      var tipLeft = ptr[0] + 16;
+      if (tipLeft + 240 > window.innerWidth) tipLeft = ptr[0] - 246;
+      tip.style.left = tipLeft + 'px';
+      tip.style.top  = Math.max(8, ptr[1] - 20) + 'px';
+      tip.style.display = 'block';
+
+      tip.innerHTML = '<div class="tip-date">' + date + ' · 전체 ' + rows.length + '종목</div>'
+        + rows.map(function(s, ri) {
+          var v = s.values[idx];
+          if (!v) return '';
+          var val = getVal(v, s);
+          var chg = (v.cap - s.values[0].cap) / s.values[0].cap * 100;
+          var disp = mode==='rel' ? (val>=0?'+':'')+val.toFixed(2)+'%' : val.toFixed(1)+'조';
+          return '<div class="tip-row">'
+            +'<span class="tip-rank">'+(ri+1)+'</span>'
+            +'<span class="tip-name"><span class="tip-dot" style="background:'+s.color+'"></span>'
+            +'<span>'+s.name+'</span></span>'
+            +'<span class="tip-cap">'+disp+'</span>'
+            +'<span class="tip-chg '+(chg>=0?'up':'down')+'">'+(chg>=0?'+':'')+chg.toFixed(1)+'%</span>'
+            +'</div>';
+        }).join('');
     })
-    .on('mouseleave',function(){
+    .on('mouseleave', function() {
       crossV.style('display','none');
-      document.getElementById('tooltip').style.display='none';
+      document.getElementById('tooltip').style.display = 'none';
     });
 }
 
-window.addEventListener('resize',function(){if(allData.length)drawChart();});
+window.addEventListener('resize', function() { if (allData.length) drawChart(); });
 </script>
 </body>
 </html>
