@@ -120,6 +120,36 @@
 
   /* Error */
   #error-msg { display: none; background: rgba(244,63,94,0.08); border: 1px solid rgba(244,63,94,0.25); border-radius: 10px; padding: 14px 18px; color: var(--down); font-size: 13px; margin-bottom: 12px; }
+
+  /* Y축 범위 슬라이더 */
+  .yrange-wrap {
+    display: none; align-items: center; gap: 10px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 8px 14px; margin-bottom: 10px; user-select: none;
+  }
+  .yrange-wrap.visible { display: flex; }
+  .yrange-label { font-size: 11px; color: var(--dim); white-space: nowrap; }
+  .yrange-val { font-size: 11px; color: var(--accent); font-family: 'JetBrains Mono', monospace; font-weight: 600; min-width: 54px; }
+  .yrange-val.right { text-align: right; }
+  .slider-track-wrap { position: relative; flex: 1; height: 20px; display: flex; align-items: center; cursor: pointer; }
+  .slider-track { position: absolute; left: 0; right: 0; height: 4px; background: var(--border); border-radius: 2px; }
+  .slider-range { position: absolute; height: 4px; background: var(--accent); border-radius: 2px; opacity: 0.6; }
+  .slider-handle {
+    position: absolute; width: 14px; height: 14px;
+    background: var(--accent); border-radius: 50%; transform: translateX(-50%);
+    cursor: grab; z-index: 2;
+    box-shadow: 0 0 0 3px rgba(56,189,248,0.2);
+    transition: box-shadow 0.15s, transform 0.1s;
+  }
+  .slider-handle:hover { transform: translateX(-50%) scale(1.2); box-shadow: 0 0 0 5px rgba(56,189,248,0.3); }
+  .slider-handle.dragging { cursor: grabbing; transform: translateX(-50%) scale(1.25); }
+  .yrange-reset {
+    font-size: 11px; color: var(--dim); cursor: pointer;
+    padding: 3px 8px; border-radius: 5px; border: 1px solid var(--border);
+    background: transparent; font-family: 'Noto Sans KR', sans-serif;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .yrange-reset:hover { color: var(--text); border-color: var(--accent); }
 </style>
 </head>
 <body>
@@ -151,6 +181,19 @@
   <span class="hint">선 또는 종목 클릭 → 하이라이트</span>
 </div>
 
+<div class="yrange-wrap" id="yrange-wrap">
+  <span class="yrange-label">Y축 범위</span>
+  <span class="yrange-val" id="yr-min-val">0조</span>
+  <div class="slider-track-wrap" id="slider-track-wrap">
+    <div class="slider-track"></div>
+    <div class="slider-range" id="slider-range"></div>
+    <div class="slider-handle" id="handle-lo" title="하한 드래그"></div>
+    <div class="slider-handle" id="handle-hi" title="상한 드래그"></div>
+  </div>
+  <span class="yrange-val right" id="yr-max-val">1500조</span>
+  <button class="yrange-reset" onclick="resetYRange()">초기화</button>
+</div>
+
 <div class="main">
   <div class="chart-wrap" id="chart-wrap">
     <svg id="chart"></svg>
@@ -166,6 +209,8 @@
 <script>
 // ── State ────────────────────────────────────────────────────
 let allData = [], highlight = null, mode = 'abs', sector = 'all', logScale = false;
+let yRangePct = [0, 1]; // 슬라이더 비율 [하한, 상한] 0~1
+let yDataMin = 0, yDataMax = 1500; // 실제 데이터 min/max (데이터 로드 후 갱신)
 
 const SECTOR_PALETTE = {
   '반도체':'#38bdf8','자동차':'#f59e0b','IT':'#a78bfa','바이오':'#34d399',
@@ -182,9 +227,15 @@ fetch('./data/kospi.json')
     allData = json.stocks.map(s => ({ ...s, color: SECTOR_PALETTE[s.sector] || '#94a3b8' }));
     document.getElementById('subtitle').textContent =
       `최근 30영업일 · ~${json.generated_at} · ${json.source || 'KRX'}`;
+    // 전체 데이터 범위 계산
+    const allCaps = allData.flatMap(s => s.values.map(v => v.cap));
+    yDataMin = Math.min(...allCaps);
+    yDataMax = Math.max(...allCaps);
+    yRangePct = [0, 1];
     buildSectorFilter();
     buildLegend();
     drawChart();
+    initSlider();
     document.getElementById('loading').style.display = 'none';
   })
   .catch(err => {
@@ -207,6 +258,10 @@ function setMode(m) {
   mode = m;
   document.getElementById('btn-abs').classList.toggle('active', m === 'abs');
   document.getElementById('btn-rel').classList.toggle('active', m === 'rel');
+  // 등락률 모드에서는 슬라이더 숨김
+  const wrap = document.getElementById('yrange-wrap');
+  if (m === 'rel') { wrap.classList.remove('visible'); }
+  else if (allData.length) { wrap.classList.add('visible'); }
   drawChart();
 }
 
@@ -217,7 +272,73 @@ function toggleLog() {
   drawChart();
 }
 
-function getFiltered() {
+// ── Y Range Slider ────────────────────────────────────────────
+function initSlider() {
+  document.getElementById('yrange-wrap').classList.add('visible');
+  updateSliderUI();
+
+  ['lo', 'hi'].forEach(which => {
+    const handle = document.getElementById(`handle-${which}`);
+    handle.addEventListener('mousedown', e => startDrag(e, which));
+    handle.addEventListener('touchstart', e => startDrag(e, which), { passive: true });
+  });
+}
+
+function startDrag(e, which) {
+  e.preventDefault && e.preventDefault();
+  const handle = document.getElementById(`handle-${which}`);
+  handle.classList.add('dragging');
+
+  const onMove = ev => {
+    const clientX = ev.touches ? ev.touches[0].clientX : ev.clientX;
+    const wrap = document.getElementById('slider-track-wrap');
+    const rect = wrap.getBoundingClientRect();
+    let pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+
+    if (which === 'lo') {
+      yRangePct[0] = Math.min(pct, yRangePct[1] - 0.02);
+    } else {
+      yRangePct[1] = Math.max(pct, yRangePct[0] + 0.02);
+    }
+    updateSliderUI();
+    drawChart();
+  };
+
+  const onUp = () => {
+    handle.classList.remove('dragging');
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('touchend', onUp);
+  };
+
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+  document.addEventListener('touchmove', onMove, { passive: true });
+  document.addEventListener('touchend', onUp);
+}
+
+function updateSliderUI() {
+  const lo = yRangePct[0], hi = yRangePct[1];
+  document.getElementById('handle-lo').style.left = `${lo * 100}%`;
+  document.getElementById('handle-hi').style.left = `${hi * 100}%`;
+  document.getElementById('slider-range').style.left  = `${lo * 100}%`;
+  document.getElementById('slider-range').style.width = `${(hi - lo) * 100}%`;
+
+  const span = yDataMax - yDataMin;
+  const minVal = yDataMin + lo * span;
+  const maxVal = yDataMin + hi * span;
+  document.getElementById('yr-min-val').textContent = `${minVal.toFixed(0)}조`;
+  document.getElementById('yr-max-val').textContent = `${maxVal.toFixed(0)}조`;
+}
+
+function resetYRange() {
+  yRangePct = [0, 1];
+  updateSliderUI();
+  drawChart();
+}
+
+
   return allData.filter(d => sector === 'all' || d.sector === sector);
 }
 
@@ -275,13 +396,24 @@ function drawChart() {
   const [yMin, yMax] = d3.extent(allVals);
   const yPad = (yMax - yMin) * 0.1 || 1;
 
+  // Y축 범위: 슬라이더 적용 (abs 모드일 때만)
+  let yDomainMin, yDomainMax;
+  if (mode === 'abs') {
+    const span = yDataMax - yDataMin;
+    yDomainMin = yDataMin + yRangePct[0] * span;
+    yDomainMax = yDataMin + yRangePct[1] * span;
+  } else {
+    yDomainMin = yMin - yPad;
+    yDomainMax = yMax + yPad;
+  }
+
   const useLog = logScale && mode === 'abs';
   let yScale;
   if (useLog) {
-    const safeMin = Math.max(yMin * 0.9, 0.1);
-    yScale = d3.scaleLog().domain([safeMin, yMax * 1.1]).range([iH, 0]).nice();
+    const safeMin = Math.max(yDomainMin, 0.1);
+    yScale = d3.scaleLog().domain([safeMin, yDomainMax]).range([iH, 0]).nice();
   } else {
-    yScale = d3.scaleLinear().domain([yMin - yPad, yMax + yPad]).range([iH, 0]).nice();
+    yScale = d3.scaleLinear().domain([yDomainMin, yDomainMax]).range([iH, 0]).nice();
   }
 
   const xScale = d3.scalePoint().domain(dates).range([0, iW]).padding(0.3);
