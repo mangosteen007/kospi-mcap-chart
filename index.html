@@ -393,18 +393,21 @@ function drawChart() {
       var date = domain[idx];
       crossV.attr('x1',xScale(date)).attr('x2',xScale(date)).style('display',null);
 
-      // 하이라이트 종목이 있으면 해당 종목만, 없으면 TOP 10
+      // 마우스 Y 위치에서 가장 가까운 종목 1개 찾기
+      var my = d3.pointer(event)[1];
+      var closest = null, minDist = Infinity;
+      fd.forEach(function(s) {
+        var v = s.values[idx];
+        if (!v) return;
+        var yy = yScale(getVal(v, s));
+        var dist = Math.abs(yy - my);
+        if (dist < minDist) { minDist = dist; closest = s; }
+      });
+
+      // 하이라이트 종목이 있으면 해당 종목만, 없으면 가장 가까운 종목
       var rows = highlight
         ? fd.filter(function(s){ return s.code === highlight; })
-        : sortedFd.slice().sort(function(a,b) {
-            var av = a.values[idx] ? a.values[idx].cap : 0;
-            var bv = b.values[idx] ? b.values[idx].cap : 0;
-            return bv - av;
-          }).slice(0, 10);
-
-      var tipTitle = highlight
-        ? (rows.length ? rows[0].name : '')
-        : date + ' · TOP 10';
+        : (closest ? [closest] : []);
 
       var ptr = d3.pointer(event, document.body);
       var tip = document.getElementById('tooltip');
@@ -414,7 +417,7 @@ function drawChart() {
       tip.style.top  = Math.max(8, ptr[1] - 20) + 'px';
       tip.style.display = 'block';
 
-      tip.innerHTML = '<div class="tip-date">' + date + (highlight ? '' : ' · TOP 10') + '</div>'
+      tip.innerHTML = '<div class="tip-date">' + date + '</div>'
         + rows.map(function(s, ri) {
           var v = s.values[idx];
           if (!v) return '';
@@ -422,7 +425,6 @@ function drawChart() {
           var chg = (v.cap - s.values[0].cap) / s.values[0].cap * 100;
           var disp = mode==='rel' ? (val>=0?'+':'')+val.toFixed(2)+'%' : val.toFixed(1)+'조';
           return '<div class="tip-row">'
-            +'<span class="tip-rank">'+(ri+1)+'</span>'
             +'<span class="tip-dot" style="background:'+s.color+'"></span>'
             +'<span class="tip-name">'+s.name+'</span>'
             +'<span class="tip-cap">'+disp+'</span>'
