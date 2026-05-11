@@ -207,7 +207,6 @@ fetch('./data/kospi.json')
     yDataMin = Math.min.apply(null, caps);
     yDataMax = Math.max.apply(null, caps);
     yRangePct = [0, 1];
-    buildSectorFilter();
     buildLegend();
     drawChart();
     initSlider();
@@ -233,15 +232,6 @@ function fmtVal(cap) {
   // 항상 "N조" 형태로 가로 텍스트
   if (cap >= 1) return cap.toFixed(0) + '조';
   return cap.toFixed(1) + '조';
-}
-
-function buildSectorFilter() {
-  var seen = {}, sectors = ['all'];
-  allData.forEach(function(d) { if (!seen[d.sector]) { seen[d.sector]=true; sectors.push(d.sector); } });
-  sectors.sort(function(a,b) { return a==='all'?-1:b==='all'?1:a.localeCompare(b); });
-  document.getElementById('sector-sel').innerHTML = sectors.map(function(s) {
-    return '<option value="'+s+'">'+(s==='all'?'전체 섹터':s)+'</option>';
-  }).join('');
 }
 
 function setSector(v) { sector=v; highlight=null; buildLegend(); drawChart(); }
