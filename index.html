@@ -202,7 +202,7 @@ fetch('./data/kospi.json')
       return { code:s.code, name:s.name, sector:s.sector, values:s.values, color:PALETTE[s.sector]||'#94a3b8' };
     });
     document.getElementById('subtitle').textContent =
-      '최근 30영업일 · ~' + json.generated_at + ' · 오전 7시 갱신 · ' + (json.source || 'KRX');
+      '최근 30영업일 · ~' + json.generated_at + ' · 낮 12시 갱신 · ' + (json.source || 'KRX');
     var caps = [];
     allData.forEach(function(s) { s.values.forEach(function(v) { caps.push(v.cap); }); });
     yDataMin = Math.min.apply(null, caps);
