@@ -2,13 +2,12 @@ name: Update KOSPI Data
 
 on:
   schedule:
-    # 매일 오전 7시 (KST) = UTC 22:00 (전날)
-    - cron: '0 1 * * 1-5'    # UTC 01:00 = KST 10:00
-  workflow_dispatch:           # 수동 실행 버튼
+    - cron: '0 3 * * 1-5'   # UTC 03:00 = KST 12:00 (낮 12시), 월~금
+  workflow_dispatch:          # 수동 실행 버튼
 
 permissions:
   contents: write
-  
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -16,6 +15,8 @@ jobs:
     steps:
       - name: 레포 체크아웃
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Python 설정
         uses: actions/setup-python@v5
@@ -36,4 +37,4 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/kospi.json
           git diff --staged --quiet || git commit -m "데이터 업데이트: $(date +'%Y-%m-%d')"
-          git push
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
