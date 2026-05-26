@@ -2,8 +2,8 @@ name: Update KOSPI Data
 
 on:
   schedule:
-    - cron: '0 3 * * 1-5'   # UTC 03:00 = KST 12:00 (낮 12시), 월~금
-  workflow_dispatch:          # 수동 실행 버튼
+    - cron: '0 3 * * 1-5'   # UTC 03:00 = KST 12:00, 월~금
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -16,7 +16,7 @@ jobs:
       - name: 레포 체크아웃
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Python 설정
         uses: actions/setup-python@v5
