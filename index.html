@@ -186,11 +186,11 @@ var yDataMax = 1500;
 // 종목 코드 기반으로 고정 색상 생성 (매번 같은 색 유지)
 function codeToColor(code) {
   var colors = [
-    '#38bdf8','#f59e0b','#a78bfa','#34d399','#f97316','#818cf8',
-    '#fb7185','#e879f9','#84cc16','#22d3ee','#facc15','#2dd4bf',
-    '#c084fc','#60a5fa','#f472b6','#4ade80','#ff6b6b','#fbbf24',
-    '#6ee7b7','#93c5fd','#d8b4fe','#86efac','#fca5a5','#67e8f9',
-    '#fde68a','#99f6e4','#ddd6fe','#fbcfe8','#bef264','#fed7aa'
+    '#ff3b3b','#ff8c00','#ffd700','#39ff14','#00ffff','#007fff',
+    '#8a2be2','#ff69b4','#ff4500','#00fa9a','#1e90ff','#ff1493',
+    '#adff2f','#00ced1','#ff6347','#7fffd4','#dc143c','#00bfff',
+    '#9400d3','#32cd32','#ff7f50','#40e0d0','#ee82ee','#f0e68c',
+    '#87ceeb','#fa8072','#98fb98','#dda0dd','#f08080','#b0e0e6'
   ];
   var n = parseInt(code, 10) % colors.length;
   return colors[n];
@@ -319,7 +319,7 @@ function buildLegend() {
     return '<div class="legend-item'+(isHl?' hl':'')+(isFd?' faded':'')+'" onclick="toggleHl(\''+s.code+'\')">'
       +'<div class="legend-swatch" style="background:'+s.color+'"></div>'
       +'<div class="legend-info"><div class="legend-name">'+s.name+'</div>'
-      +'<div class="legend-sub">#'+(i+1)+' '+s.sector+'</div></div>'
+      +'<div class="legend-sub">#'+(i+1)+'</div></div>'
       +'<div class="legend-chg '+(chg>=0?'up':'down')+'">'+(chg>=0?'+':'')+chg.toFixed(1)+'%</div>'
       +'</div>';
   }).join('');
