@@ -183,13 +183,18 @@ var yRangePct = [0, 1];
 var yDataMin = 0;
 var yDataMax = 1500;
 
-var PALETTE = {
-  '반도체':'#38bdf8','자동차':'#f59e0b','IT':'#a78bfa','바이오':'#34d399',
-  '화학':'#f97316','배터리':'#818cf8','철강':'#94a3b8','금융':'#fb7185',
-  '지주':'#e879f9','건설':'#84cc16','전자':'#22d3ee','에너지':'#facc15',
-  '통신':'#2dd4bf','보험':'#c084fc','해운':'#60a5fa','조선':'#f472b6',
-  '항공':'#4ade80','전력기기':'#ff6b6b'
-};
+// 종목 코드 기반으로 고정 색상 생성 (매번 같은 색 유지)
+function codeToColor(code) {
+  var colors = [
+    '#38bdf8','#f59e0b','#a78bfa','#34d399','#f97316','#818cf8',
+    '#fb7185','#e879f9','#84cc16','#22d3ee','#facc15','#2dd4bf',
+    '#c084fc','#60a5fa','#f472b6','#4ade80','#ff6b6b','#fbbf24',
+    '#6ee7b7','#93c5fd','#d8b4fe','#86efac','#fca5a5','#67e8f9',
+    '#fde68a','#99f6e4','#ddd6fe','#fbcfe8','#bef264','#fed7aa'
+  ];
+  var n = parseInt(code, 10) % colors.length;
+  return colors[n];
+}
 
 fetch('./data/kospi.json')
   .then(function(r) {
@@ -198,7 +203,7 @@ fetch('./data/kospi.json')
   })
   .then(function(json) {
     allData = json.stocks.map(function(s) {
-      return { code:s.code, name:s.name, sector:s.sector, values:s.values, color:PALETTE[s.sector]||'#94a3b8' };
+      return { code:s.code, name:s.name, sector:s.sector, values:s.values, color:codeToColor(s.code) };
     });
     document.getElementById('subtitle').textContent =
       '최근 30영업일 · ~' + json.generated_at + ' · 낮 정오 12시 갱신 · ' + (json.source || 'KRX');
